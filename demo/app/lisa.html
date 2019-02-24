@@ -1,0 +1,18 @@
+<div>
+    <name>Mrs.Lisa</name>
+    <data>i'm lisa, 18 years old</data>
+    <script>
+        let data = self.querySelector("data");
+        let lisaInfo = function(){
+            return data.innerText;
+        }
+
+        let age = 18;
+        let clickPlusOne = function(){
+            data.innerText = "i'm lisa, "+ (++age) +" years old";
+        }
+
+        module.exports.lisaInfo = lisaInfo;
+        module.exports.clickPlusOne = clickPlusOne;
+    </script>
+</div>
