@@ -40,6 +40,14 @@
         }
     }());
 
+    //继承一个对象的所有属性
+    function extend (to, _from) {
+        for (let key in _from) {
+            to[key] = _from[key];
+        }
+        return to
+    }
+
 
 
     /**
@@ -62,7 +70,7 @@
     let globla;
     let init = function(){
         globla = compile(window.document);
-        console.log(globla);
+        // console.log(globla);
     }
     window.addEventListener("DOMContentLoaded", init);
 
@@ -73,11 +81,31 @@
     let compile = function(/*HTMLDocument || HTMLElement*/ context){
         let slots = [];
         if(!isContext(context)) return slots;
-        let raws = context.querySelectorAll("[su-app]");
+        let raws = context.querySelectorAll("[su-import]");
         for(let i=0; i < raws.length; i++){
             slots.push(new Slot(raws[i]));
         }
         return slots;
+    }
+
+
+    /**
+     * 执行js
+     */
+    let execJs = function(/*Slot*/ slot){
+        let self = slot.mod;
+        let module = slot.module;
+        let jsel = self.querySelector("script");
+        if(!jsel) return;
+
+        for(let i=0; i<slot.innerSlot.length; i++){
+            let curr = slot.innerSlot[i];
+            extend(module, curr.module.exports);
+        }
+        // console.log(module)
+
+        let fn = new Function("/*" + slot.name + "*/ self, module", jsel.innerText);
+        fn(self, module);
     }
 
 
@@ -87,11 +115,16 @@
      * vm内部使用
      */
     const Slot = function(/*HTMLElement*/ el){
-        this.src = el.getAttribute("su-app");
+        this.src = el.getAttribute("su-import");
+        this.name = this.src.split("/").pop();
         this.mod = getMod(this.src);
         this.host = el.attachShadow({mode: "open"});
         this.host.appendChild(this.mod);
         this.innerSlot = compile(this.mod);
+        this.module = {
+            exports: Object.create(null)
+        }
+        execJs(this);
     }
 
 
