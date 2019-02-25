@@ -1,6 +1,6 @@
-// (function(global, factory){
-//     factory();
-// }(this, (function(){
+(function(global, factory){
+    factory();
+}(this, (function(){
     'use strict';
 
     /**
@@ -113,7 +113,6 @@
             let curr = slot.innerSlot[i];
             extend(module, curr.module.exports);
         }
-        // console.log(module)
 
         let fn = new Function("/*" + slot.name + "*/ self, module", jsel.innerText);
         fn(self, module);
@@ -140,4 +139,4 @@
 
 
 
-// })));
+})));
