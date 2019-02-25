@@ -5,7 +5,7 @@
         }
     </style>
     <name>Mr.Sam</name>
-    <div su-import="./app/lisa.html" as="lisa">
+    <div su-import="./app/lisa.html">
 
     </div>
 
@@ -13,9 +13,9 @@
     <script>
         // console.log(module)
         console.log("Sam: what's your name?");
-        console.log("List: "+ module.lisaInfo());
+        console.log("List: "+ module.lisa.lisaInfo());
         let c = self.querySelector("#c");
         console.log(c)
-        c.addEventListener("click", module.clickPlusOne);
+        c.addEventListener("click", module.lisa.clickPlusOne);
     </script>
 </div>

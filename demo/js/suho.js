@@ -48,6 +48,17 @@
         return to
     }
 
+    //珂里函数结果缓存
+    function cache(curryFn){
+        let lib = Object.create(null);
+        return function cacheFn(prop){
+            let hit = lib[prop];
+            return hit
+                ? hit
+                : lib[prop] = curryFn(prop);
+        }
+    }
+
 
 
     /**
@@ -55,11 +66,11 @@
      * ajax同步方式
      */
     let xhr = new XMLHttpRequest();
-    let getMod = function(/*string*/ src){
+    let getMod = cache(function(/*string*/ src){
         xhr.open("GET", src, false);
         xhr.send();
         return toDom(xhr.responseText);
-    }
+    });
 
 
 
