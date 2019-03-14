@@ -1,0 +1,23 @@
+<div>
+    mod1
+</div>
+
+<script>
+    let header = require("mod/header.html");
+    let mod2   = require("mod/mod2.html");
+
+    return {
+        foo: header.foo,
+        foo2: mod2.foo
+    }
+</script>
+
+<style>
+    div {
+        height: 500px;
+        background-color: #ff8900;
+        color: blue;
+        text-align: center;
+        line-height: 500px;
+    }
+</style>
