@@ -8,18 +8,20 @@ let compile = function(modRaw, callbackExports){
     let exports = Object.create(null);
 
     imports.forEach(function(url){
-        fetchMod(url, function(importModRaw, allLoaded){
+        fetchMod(url, function(herModRaw, allLoaded){
             //解析依赖模块
-            compile(importModRaw, function(herExport){
+            compile(herModRaw, function(herModExport){
                 //放进exports待返回
-                exports[url] = herExport;
+                exports[url] = herModExport;
                 //如果全部依赖都解析完了
                 if(allLoaded){
                     //构建当前模块的完整脚本
-                    let mod = new Function("require", summary.jsRaw);
+                    let mod = new Function("require, $doc", summary.jsRaw);
                     let currModExport = mod(function(key){
                         return exports[key];
-                    });
+                    }, summary.doc);
+                    //导出当前模块的$doc
+                    currModExport && (currModExport.$doc = summary.doc);
                     callbackExports(currModExport);
                 }
             });
@@ -28,7 +30,10 @@ let compile = function(modRaw, callbackExports){
 
     if(!imports.length){
         let mod = new Function("", summary.jsRaw);
-        callbackExports(mod());
+        let currModExport = mod(summary.doc);
+        //导出当前模块的$doc
+        currModExport && (currModExport.$doc = summary.doc);
+        callbackExports(currModExport);
     }
 }
 
@@ -50,17 +55,38 @@ let getSummary = (function(){
     let div = document.createElement("div");
     return function(modRaw){
         div.innerHTML = modRaw;
-        let script = div.querySelector("script");
+        let script, doc, style;
         let frag = document.createDocumentFragment(), child;
-        while(child = div.firstChild){
-            frag.appendChild(child);
+        while(child = div.firstElementChild){
+            let nodeName = child.nodeName.toLocaleLowerCase();
+            switch (nodeName) {
+                case "script":
+                    script = child;
+                    div.removeChild(script);
+                    break;
+                case "style":
+                    style = child;
+                    frag.appendChild(child);
+                    break;
+                default:
+                    frag.appendChild(child);
+                    doc = child;
+            }
         }
         return {
             jsRaw: script? script.innerText: "",
-            dom: frag
+            frag: frag,
+            doc: doc,
+            style: style
         }
     }
 }());
+
+
+//扫描组件doc，定位插槽，放置组件
+let putFrag = function(){
+
+}
 
 
 
@@ -69,7 +95,7 @@ function Suho(mainFunc){
     let startIndex = mainFuncRaw.indexOf("{") + 1;
     let endIndex = mainFuncRaw.lastIndexOf("}");
     let mainModRaw = mainFuncRaw.substring(startIndex, endIndex);
-    mainModRaw = "<script>"+ mainModRaw +"</script>"
+    mainModRaw = "<script>"+ mainModRaw +"</script>";
     compile(mainModRaw, function(exports){});
 }
 

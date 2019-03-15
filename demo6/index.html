@@ -11,6 +11,7 @@
 <script type="text/javascript">
     Suho(function(require){
         let mod1 = require("mod/mod1.html");
+        document.body.appendChild(mod1.$doc);
         mod1.foo();
         mod1.foo2();
     });

@@ -6,6 +6,8 @@
     let header = require("mod/header.html");
     let mod2   = require("mod/mod2.html");
 
+    $doc.appendChild(mod2.$doc);
+
     return {
         foo: header.foo,
         foo2: mod2.foo
