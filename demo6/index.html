@@ -7,13 +7,18 @@
 <body>
 
 </body>
+<script type="text/javascript" src="../packages/suho-mod-fetcher/index.js"></script>
+<script type="text/javascript" src="../packages/suho-lib-getSummary/index.js"></script>
 <script type="text/javascript" src="suho.js"></script>
 <script type="text/javascript">
-    Suho(function(require){
+    Suho.main((require) => {
         let mod1 = require("mod/mod1.html");
+
         document.body.appendChild(mod1.$doc);
+
         mod1.foo();
         mod1.foo2();
+        mod1.foo3();
     });
 </script>
 </html>

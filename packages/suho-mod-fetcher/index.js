@@ -23,6 +23,8 @@ let fetchMod = (function(){
             }
         };
 
+    //监听所有组件加载完成
+
     return function(url, cbk){
         if(allTaskComplete) {
             allTaskComplete = false;

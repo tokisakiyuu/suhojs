@@ -4,13 +4,15 @@
 
 <script>
     let header = require("mod/header.html");
-    let mod2   = require("mod/mod2.html");
+    let mod2 = require("mod/mod2.html");
+    let footer = require("mod/footer.html");
 
     $doc.appendChild(mod2.$doc);
 
     return {
         foo: header.foo,
-        foo2: mod2.foo
+        foo2: mod2.foo,
+        foo3: footer.foo
     }
 </script>
 
