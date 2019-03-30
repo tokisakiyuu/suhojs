@@ -29,30 +29,26 @@ Component.prototype.fetch = function(retRaw){
     }
 }
 
+
 Component.prototype.compile = function(raw){
-    //处理import语句
-    let importStatement = raw.match(/\r?(.*)import (.*) from "(.*)";?/g);
-    //处理export语句
-    raw = raw.replace("export default", "return");
+    //收集require语句
+    let requireStatement = raw.match(/(var|let|const)\s+(.*)\s*=\s*require\(.*('|")(.*)\3.*\);?/g);
+    //处理export:语句
+    raw = raw.replace("export:", "return");
     //如果没有依赖
-    if(!importStatement) {
-        this.$executor = new Function("", raw);
-        return;
+    if(!requireStatement){
+        return this.$executor = new Function("", raw);
     }
 
-    //如果有一个以上的依赖
-    while(importStatement[0]){
-        let one = importStatement.shift();
-
-        //解构单个语句
-        let detail = one.match(/\r?(.*)import (.*) from "(.*)";?/);
-        //如果被注释了就忽略此语句
-        if(detail[1].indexOf("//") >= 0) continue;
-
-        this.depend.push(detail[3]);
-
-        raw = raw.replace(one, "let "+detail[2]+" = require('"+detail[3]+"')");
+    //如果有一个以上的依赖存在
+    while(requireStatement[0]){
+        let index = 1, step = 2;
+        let line = requireStatement.shift();
+        let $ = line.split("\"");
+        while($[index]){
+            this.depend.push($[index]);
+            index += step;
+        }
     }
-
     this.$executor = new Function("require", raw);
 }

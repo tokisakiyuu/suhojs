@@ -1,7 +1,7 @@
-import mod3 from "mod/mod3.js";
-import mod4 from "mod/mod4.js";
+let mod3 = require("mod/mod3.js");
+let mod4 = require("mod/mod4.js");
 
-export default {
+export: {
     foo: function(){
         console.log("mod2 {");
         mod3.foo();
