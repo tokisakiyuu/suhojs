@@ -15,12 +15,12 @@
 let modules = new Map();
 
 
-/**
- * 加载器仓库。
- * 它用来存放已经被加载的加载器，{url -> $loader}
- * @todo 定义loader的接口灵活性太低了，需要改进为一个新的方式
- */
-let loaders = new Map();
+// /**
+//  * 加载器仓库。
+//  * 它用来存放已经被加载的加载器，{url -> $loader}
+//  * @todo 定义loader的接口灵活性太低了，需要改进为一个新的方式
+//  */
+// let loaders = new Map();
 
 
 
@@ -57,19 +57,19 @@ let getModule = function (url) {
 
 
 
-/**
- * 定义加载器，suffix可以是一个包含种文件后缀的数组
- */
-let defineLoader = function (suffix, loader) {
-    if (suffix instanceof Array) {
-        while (suffix[0]) {
-            let sym = suffix.shift();
-            loaders.set(sym, loader);
-        }
-    } else if (typeof suffix == "string") {
-        loaders.set(suffix, loader);
-    }
-}
+// /**
+//  * 定义加载器，suffix可以是一个包含种文件后缀的数组
+//  */
+// let defineLoader = function (suffix, loader) {
+//     if (suffix instanceof Array) {
+//         while (suffix[0]) {
+//             let sym = suffix.shift();
+//             loaders.set(sym, loader);
+//         }
+//     } else if (typeof suffix == "string") {
+//         loaders.set(suffix, loader);
+//     }
+// }
 
 
 

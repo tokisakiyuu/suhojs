@@ -1,5 +1,5 @@
-let mod3 = require("mod/mod3.js");
-let mod4 = require("mod/mod4.js");
+let mod3 = require("../mod/mod3.js");
+let mod4 = require("../mod/mod4.js");
 
 export: {
     foo: function(){
