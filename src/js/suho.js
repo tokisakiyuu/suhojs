@@ -45,7 +45,7 @@ let addModule = function (mod) {
  * 从模块仓库中获取一个模块并执行，为调用者 构建实例 或者 返回实例
  * @param {string} url 
  * @returns {*}
- * @todo 或许可以尝试 require、requireLoader、requireXXX 这样的用户接口形式
+ * @todo 或许可以尝试 内建一些可供开发者调用的模块，比如 自定义loader模块
  */
 let getModule = function (url) {
     if (typeof url != "string") return;
