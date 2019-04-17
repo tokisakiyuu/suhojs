@@ -7,18 +7,8 @@
 let modules = new Map();
 
 
-
-
 /**
- * 从模块仓库中获取一个模块并执行，为调用者 构建实例 或者 返回实例
- * @param {string} url 
- * @returns {*}
- * @todo 或许可以尝试 内建一些可供开发者调用的模块，比如 自定义loader模块
+ * 别名表。
+ * 为模块创建的别名储存在此，require函数引入模块时优先查找这里的键
  */
-let getModule = function (url) {
-    if (typeof url != "string") return;
-    let mod = modules.get(url);
-    return mod.$executor
-        ? mod.$executor(getModule)        //如果是执行器，返回执行器的返回
-        : mod.$instance;                    //如果是实例，直接返回
-}
+let alias = new Map();

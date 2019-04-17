@@ -19,19 +19,27 @@ let generateModule = function(url, retModule){
 /**
  * 解析模块源码，收集必要信息，返回一个构造完毕的模块
  * 一个构造完毕的模块实质上是一个匿名函数，返回值是该模块的导出，且这个函数有且只有一个参数，参数名必须是 "require"
+ * !如果是未知类型的文件那就生成一个直接返回文件内容的模块
  */
 function compile(url, raw, retModule){
+    if(notJsFile(url)){
+        retModule(
+            new Function("                         /* "+ url +" */", "return `"+ raw +"`")
+        );
+        return;
+    }
+
     raw = exportStatment(raw);
     let depends = getDepend(raw);
     depends.forEach(
         function pushWaitingOnlyUrl(url){
-            if(url[0] == "@") return;
+            //推入任务队列
             waiting.push(url);
         }
     );
     
     retModule(
-        new Function("require" + " /* "+ url +" */", raw)
+        new Function("require" + "                           /* "+ url +" */", raw)
     )
 }
 
@@ -50,7 +58,8 @@ function getDepend(raw){
         gatherFn(
             function findDepend(url){
                 depends.push(url);
-            }
+            },
+            undefined
         );
     } catch (_) {};
     return depends;
@@ -63,7 +72,7 @@ function getDepend(raw){
  * 执行语法检查
  */
 function preCheckCode(raw){
-    return new Function("require", raw);
+    return new Function("require, console", raw);
 }
 
 
@@ -106,6 +115,15 @@ function watchXhr(url, xhr, retRaw){
 
 
 
+/**
+ * 检查url指向的文件是否是一个非js脚本的文件
+ */
+function notJsFile(url){
+    return url.substr(url.lastIndexOf(".")) != ".js";
+}
+
+
+
 
 
 /**
@@ -113,4 +131,11 @@ function watchXhr(url, xhr, retRaw){
  */
 function error(msg){
     console.error("[Suho error] " + msg);
+}
+
+/**
+ * 
+ */
+function warn(msg){
+    console.log("[Suho warn] " + msg);
 }

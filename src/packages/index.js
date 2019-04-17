@@ -3,6 +3,15 @@
  * 从当前script节点上获取入口脚本的url
  */
 let mainModUrl = document.currentScript.getAttribute("suho-main");
+let configUrl  = document.currentScript.getAttribute("suho-config");
+
+
+
+/**
+ * 运行配置脚本
+ */
+loadAndRunConfig(configUrl);
+
 
 
 /**
@@ -17,13 +26,15 @@ let mainMod = function(){
 /**
  * 生成入口模块
  */
-generateModule(
-    mainModUrl, 
-    function(module) {
-        mainMod = module;
-        snail_crawl(produce);
-    }
-);
+function doWork(){
+    generateModule(
+        mainModUrl, 
+        function(module) {
+            mainMod = module;
+            snail_crawl(produce);
+        }
+    );
+}
 
 
 
@@ -46,12 +57,37 @@ function produce() {
 
 
 
+/**
+ * 配置参数
+ */
+const Suho = {
+    a: 2,
+    b: 3
+}
+
+
 
 /**
- * 引用一个模块
+ * 加载并运行配置脚本
+ * @todo 完善配置脚本特性
  */
-function require(sign){
-    let module = modules.get(sign);
+function loadAndRunConfig(url){
+    if(!url) return doWork();
+    fetchResource(url, "text", function(raw){
+        var configFn = new Function("Suho                        /* config */", raw);
+        configFn(Suho);
+        doWork();
+    });
+}
+
+
+
+
+/**
+ * 从模块库中取用一个模块
+ */
+function require(url){
+    let module = modules.get(url);
     return module
         ? module(require)
         : null;
