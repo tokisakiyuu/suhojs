@@ -17,6 +17,14 @@ let generateModule = function(url, retModule){
 
 
 /**
+ * 获得window的所有属性
+ */
+const globalAllProp = Object.getOwnPropertyNames(self).join(",");
+
+
+
+
+/**
  * 解析模块源码，收集必要信息，返回一个构造完毕的模块
  * 一个构造完毕的模块实质上是一个匿名函数，返回值是该模块的导出，且这个函数有且只有一个参数，参数名必须是 "require"
  * !如果是未知类型的文件那就生成一个直接返回文件内容的模块
@@ -58,8 +66,7 @@ function getDepend(raw){
         gatherFn(
             function findDepend(url){
                 depends.push(url);
-            },
-            undefined
+            }
         );
     } catch (_) {};
     return depends;
@@ -72,7 +79,7 @@ function getDepend(raw){
  * 执行语法检查
  */
 function preCheckCode(raw){
-    return new Function("require, console", raw);
+    return new Function("require, " + globalAllProp, raw);
 }
 
 
