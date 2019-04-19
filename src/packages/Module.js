@@ -19,7 +19,12 @@ let generateModule = function(url, retModule){
 /**
  * 获得window的所有属性
  */
-const globalAllProp = Object.getOwnPropertyNames(self).join(",");
+let globalAllProp = Object.getOwnPropertyNames(self);
+let orginaRequire = globalAllProp.indexOf("require");
+if(orginaRequire >= 0){
+    globalAllProp.splice(orginaRequire, 1);
+}
+let shadArgs = globalAllProp.join(",");
 
 
 
@@ -79,7 +84,7 @@ function getDepend(raw){
  * 执行语法检查
  */
 function preCheckCode(raw){
-    return new Function("require, " + globalAllProp, raw);
+    return new Function("require," + shadArgs, raw);
 }
 
 

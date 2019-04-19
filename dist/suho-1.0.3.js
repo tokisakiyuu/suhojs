@@ -4,7 +4,7 @@
  */
 
 
-/**
+ /**
  * 模块仓库。
  * 它用来存放已经被加载的模块，这里的模块全部都已经准备就绪了。
  * 模块是以键值对的形式存放的，便于在取用时快速响应，形式是 {url -> Module}
@@ -21,66 +21,13 @@ let alias = new Map();
 
 
 
-
-/**
- * Built-in ResourceMap of Suhojs
+/**!
  * 2019 Yuu
  */
 
 
-function resourceMap(require){
-    return registAlias;
- }
 
-
-
- /**
-  * 检查别名是否已经被使用了
-  */
- function isUsed(alias){
-    return modules.has(alias);
- }
-
-
- /**
-  * 检查别名是否合法
-  * · 别名不能以 "@" 开头
-  * · 别名中不能出现 "/" 字符
-  */
- function isLegal(alias){
-    return alias[0] == "@" && alias.indexOf("/") < 0;
- }
-
-
- /**
-  * 注册别名
-  * 参数是一个对象
-  */
-function registAlias(aliasMap){
-    for(alias in aliasMap){
-        if(isUsed(alias)){
-            warn(
-                "the alias("+alias+") is used, can not repeat set up it."
-            );
-        }else if(isLegal(alias)){
-            warn(
-                "the alias("+alias+") illegal."
-            );
-        }else{
-            //设置别名
-        }
-    }
-}
-
-
-
-
- modules.set("@ResourceMap", resourceMap);
-
-
-
-
- /**
+/**
  * 加载任务队列
  * 用于临时存放需要加载的资源的url，当资源被加载后可能依赖了其它资源，又会生成新的任务，
  * 所以这个队列是动态增长的，直到所有的依赖资源被加载完，不再有新任务被送往队列中
@@ -134,6 +81,14 @@ function isExits(url){
 
 
 
+
+
+/*!
+ * 2019 Yuu
+ */
+
+
+
 /**
  * 生成模块
  */
@@ -142,6 +97,19 @@ let generateModule = function(url, retModule){
         compile(url, raw, retModule);
     });
 }
+
+
+
+
+/**
+ * 获得window的所有属性
+ */
+let globalAllProp = Object.getOwnPropertyNames(self);
+let orginaRequire = globalAllProp.indexOf("require");
+if(orginaRequire >= 0){
+    globalAllProp.splice(orginaRequire, 1);
+}
+let shadArgs = globalAllProp.join(",");
 
 
 
@@ -188,8 +156,7 @@ function getDepend(raw){
         gatherFn(
             function findDepend(url){
                 depends.push(url);
-            },
-            undefined
+            }
         );
     } catch (_) {};
     return depends;
@@ -202,7 +169,7 @@ function getDepend(raw){
  * 执行语法检查
  */
 function preCheckCode(raw){
-    return new Function("require, console", raw);
+    return new Function("require," + shadArgs, raw);
 }
 
 
@@ -269,6 +236,7 @@ function error(msg){
 function warn(msg){
     console.log("[Suho warn] " + msg);
 }
+
 
 
 
