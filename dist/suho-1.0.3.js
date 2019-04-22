@@ -4,6 +4,8 @@
  */
 
 
+
+(function(){
  /**
  * 模块仓库。
  * 它用来存放已经被加载的模块，这里的模块全部都已经准备就绪了。
@@ -336,3 +338,4 @@ function require(url){
         ? module(require)
         : null;
 }
+}());

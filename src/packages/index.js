@@ -6,11 +6,14 @@ let mainModUrl = document.currentScript.getAttribute("suho-main");
 let configUrl  = document.currentScript.getAttribute("suho-config");
 
 
-
-/**
+ /**
  * 运行配置脚本
  */
-loadAndRunConfig(configUrl);
+if(configUrl){
+    loadAndRunConfig(configUrl);
+}else{
+    doWork();
+}
 
 
 
@@ -57,22 +60,12 @@ function produce() {
 
 
 
-/**
- * 配置参数
- */
-const Suho = {
-    a: 2,
-    b: 3
-}
-
-
 
 /**
  * 加载并运行配置脚本
  * @todo 完善配置脚本特性
  */
 function loadAndRunConfig(url){
-    if(!url) return doWork();
     fetchResource(url, "text", function(raw){
         var configFn = new Function("Suho                        /* config */", raw);
         configFn(Suho);

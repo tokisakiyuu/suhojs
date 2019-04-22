@@ -8,6 +8,7 @@
  * 生成模块
  */
 let generateModule = function(url, retModule){
+    url = compileUrl(url);
     fetchResource( url, "text", function(raw){
         compile(url, raw, retModule);
     });
@@ -129,9 +130,30 @@ function watchXhr(url, xhr, retRaw){
 
 /**
  * 检查url指向的文件是否是一个非js脚本的文件
+ * 无文件后缀的话，默认是.js
  */
 function notJsFile(url){
     return url.substr(url.lastIndexOf(".")) != ".js";
+}
+
+
+
+
+/**
+ * 编译url
+ * 处理别名、缩写等
+ * @todo 增加表达式写法
+ */
+function compileUrl(url){
+    //别名映射查询
+    let realUrl = alias.get(url);
+    if(realUrl) url = realUrl;
+    //缩写处理
+    let levels = url.split("/");
+    let fileName = levels.reverse()[0];
+    let hasSufix = fileName.lastIndexOf(".") >= 0;
+    if(!hasSufix) url = url + ".js";
+    return url;
 }
 
 
