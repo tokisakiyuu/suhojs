@@ -7,8 +7,8 @@
 /**
  * 生成模块
  */
-let generateModule = function(url, retModule){
-    url = compileUrl(url);
+let generateModule = function(task, retModule){
+    let url = task.url;
     fetchResource( url, "text", function(raw){
         compile(url, raw, retModule);
     });
@@ -33,24 +33,21 @@ let shadArgs = globalAllProp.join(",");
 /**
  * 解析模块源码，收集必要信息，返回一个构造完毕的模块
  * 一个构造完毕的模块实质上是一个匿名函数，返回值是该模块的导出，且这个函数有且只有一个参数，参数名必须是 "require"
- * !如果是未知类型的文件那就生成一个直接返回文件内容的模块
  */
 function compile(url, raw, retModule){
-    if(notJsFile(url)){
-        retModule(
-            new Function("                         /* "+ url +" */", "return `"+ raw +"`")
-        );
-        return;
-    }
-
     raw = exportStatment(raw);
     let depends = getDepend(raw);
-    depends.forEach(
-        function pushWaitingOnlyUrl(url){
-            //推入任务队列
-            waiting.push(url);
-        }
-    );
+    depends.forEach(function(dep){
+        let url = compileUrl(dep.sign);
+        let levels = url.split("/");
+        let fileName = levels.reverse()[0];
+        let type = fileName.substr(fileName.lastIndexOf("."));
+        dep.fileName = fileName;
+        dep.type = type;
+        dep.url = url;
+        //推入任务队列
+        waiting.push(dep);
+    });
     
     retModule(
         new Function("require" + "                           /* "+ url +" */", raw)
@@ -70,8 +67,8 @@ function getDepend(raw){
     let gatherFn = preCheckCode(raw);
     try {
         gatherFn(
-            function findDepend(url){
-                depends.push(url);
+            function findDepend(sign, config){
+                depends.push({sign: sign, config: config});
             }
         );
     } catch (_) {};
@@ -122,38 +119,10 @@ function watchXhr(url, xhr, retRaw){
         let statu = xhr.status;
         if(statu >= 200 && statu < 300 || statu == 304){
             retRaw(xhr.response);
+        }else{
+            retRaw("");
         }
     }
-}
-
-
-
-/**
- * 检查url指向的文件是否是一个非js脚本的文件
- * 无文件后缀的话，默认是.js
- */
-function notJsFile(url){
-    return url.substr(url.lastIndexOf(".")) != ".js";
-}
-
-
-
-
-/**
- * 编译url
- * 处理别名、缩写等
- * @todo 增加表达式写法
- */
-function compileUrl(url){
-    //别名映射查询
-    let realUrl = alias.get(url);
-    if(realUrl) url = realUrl;
-    //缩写处理
-    let levels = url.split("/");
-    let fileName = levels.reverse()[0];
-    let hasSufix = fileName.lastIndexOf(".") >= 0;
-    if(!hasSufix) url = url + ".js";
-    return url;
 }
 
 

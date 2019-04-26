@@ -24,19 +24,29 @@ let snail_crawl = function (onOver) {
         return onOver();
     }
     //得到队列中第一个任务
-    let url = waiting.shift();
-    //如果已经存在
-    if(isExits(url)) {
+    let task = waiting.shift();
+    let sign = task.sign;
+    let config = task.config;
+    //如果对应模块已经存在
+    if(isExits(task.url)) {
         return nextTask(onOver);
     }
-    //生成模块
-    generateModule( url, 
-        function(module) {
-            modules.set(url, module);
-            //继续下个任务
-            nextTask(onOver);
-        }
-    );
+
+    //存储模块到仓库
+    function saveModule(module){
+        task.$ = module;
+        modules.set(sign, task);
+        //继续下个任务
+        nextTask(onOver);
+    }
+    //如果存在用户配置或者不是js脚本
+    if(config || task.type != ".js"){
+        //生成自定模块
+        generateCustomModule( task, saveModule);
+    }else{
+        //生成标准模块
+        generateModule( task, saveModule);
+    }
 }
 
 

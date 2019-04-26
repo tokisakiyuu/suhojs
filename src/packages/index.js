@@ -31,7 +31,7 @@ let mainMod = function(){
  */
 function doWork(){
     generateModule(
-        mainModUrl, 
+        {url: mainModUrl}, 
         function(module) {
             mainMod = module;
             snail_crawl(produce);
@@ -79,9 +79,10 @@ function loadAndRunConfig(url){
 /**
  * 从模块库中取用一个模块
  */
-function require(url){
-    let module = modules.get(url);
-    return module
-        ? module(require)
-        : null;
+function require(sign, _){
+    let mod = modules.get(sign);
+    let $ = mod.$;
+    return typeof $ === "function"
+        ? $(require)
+        : $;
 }
