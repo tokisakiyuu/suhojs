@@ -1,4 +1,4 @@
-let pngLoaderNomalExport = require("pngloader", {loader: "hello"});
+let pngLoaderNomalExport = require("pngloader", {loader: ".png"});
 let img = require("../mod/addr.png");
 
 let mod1 = require("mod1");
