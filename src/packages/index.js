@@ -29,9 +29,19 @@ let mainMod = function(){
 /**
  * 生成入口模块
  */
+function buildMainModule(url){
+    let config = {};
+    let levels = url.split("/");
+    let fileName = levels.reverse()[0];
+    let type = fileName.substr(fileName.lastIndexOf("."));
+    config.url = url;
+    config.fileName = fileName;
+    config.type = type;
+    return config;
+}
 function doWork(){
     generateModule(
-        {url: mainModUrl}, 
+        buildMainModule(mainModUrl), 
         function(module) {
             mainMod = module;
             snail_crawl(produce);

@@ -40,7 +40,7 @@ let snail_crawl = function (onOver) {
         nextTask(onOver);
     }
     //如果存在用户配置或者不是js脚本
-    if(config || task.type != ".js"){
+    if(config){
         //生成自定模块
         generateCustomModule( task, saveModule);
     }else{

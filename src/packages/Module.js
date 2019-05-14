@@ -8,35 +8,22 @@
  * 生成模块
  */
 let generateModule = function(task, retModule){
+    let loader = loaders.get(task.type);
     let url = task.url;
-    fetchResource( url, "text", function(raw){
-        compile(url, raw, retModule);
+    fetchResource( url, loader.responseType, function(raw){
+        task.raw = raw;
+        let $ = loader.make(task);
+        if(task.depends) addTask(task.depends);
+        retModule($);
     });
 }
 
 
 
-
 /**
- * 获得window的所有属性
+ * 添加任务
  */
-let globalAllProp = Object.getOwnPropertyNames(self);
-let orginaRequire = globalAllProp.indexOf("require");
-if(orginaRequire >= 0){
-    globalAllProp.splice(orginaRequire, 1);
-}
-let shadArgs = globalAllProp.join(",");
-
-
-
-
-/**
- * 解析模块源码，收集必要信息，返回一个构造完毕的模块
- * 一个构造完毕的模块实质上是一个匿名函数，返回值是该模块的导出，且这个函数有且只有一个参数，参数名必须是 "require"
- */
-function compile(url, raw, retModule){
-    raw = exportStatment(raw);
-    let depends = getDepend(raw);
+function addTask(depends){
     depends.forEach(function(dep){
         let url = compileUrl(dep.sign);
         let levels = url.split("/");
@@ -48,50 +35,6 @@ function compile(url, raw, retModule){
         //推入任务队列
         waiting.push(dep);
     });
-    
-    retModule(
-        new Function("require" + "                           /* "+ url +" */", raw)
-    )
-}
-
-
-
-/**
- * 收集模块源码中的依赖。忽略收集过程中的错误
- */
-function getDepend(raw){
-    let depends = [];
-    let findDepend = function(url){
-        depends.push(url);
-    };
-    let gatherFn = preCheckCode(raw);
-    try {
-        gatherFn(
-            function findDepend(sign, config){
-                depends.push({sign: sign, config: config});
-            }
-        );
-    } catch (_) {};
-    return depends;
-}
-
-
-
-
-/**
- * 执行语法检查
- */
-function preCheckCode(raw){
-    return new Function("require," + shadArgs, raw);
-}
-
-
-
-/**
- * 处理导出语句
- */
-function exportStatment(raw){
-    return raw.replace("export:", "return");
 }
 
 
@@ -141,4 +84,55 @@ function error(msg){
  */
 function warn(msg){
     console.log("[Suho warn] " + msg);
+}
+
+
+/**
+ * 引用继承
+ */
+function _extend(obj, _from){
+    for(let key in _from){
+        obj[key] = _from[key];
+    }
+}
+
+
+
+
+/**
+ * 生成标准模块
+ * 参数options: { url, sign, fileName, type, depends, config, raw}
+ * 参数loader: function
+ */
+function createModule(options, loader){
+    //通过loader获得原始模块，其中包含 依赖项(depends) 和 模块对象(mod)
+    let origin = loader(options.raw);
+    let depends = origin.depends || [];
+    let mod = origin.modFn || function(){};
+
+
+    // class: 标准模块类
+    return new function Module(){
+        this.url = options.url;
+        this.sign = options.sign;
+        this.fileName = options.fileName;
+        this.type = options.type;
+        this.instance = function(){
+            return typeof mod === "function"
+                ? mod(requireV2, {})
+                : mod;
+        }
+    }
+}
+
+
+
+/**
+ * 从模块库中取用一个模块 V2
+ */
+function requireV2(sign, _){
+    let module = modules.get(sign);
+    return module
+        ? module.instance()
+        : null;
 }
