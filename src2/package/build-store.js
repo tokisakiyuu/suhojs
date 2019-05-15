@@ -137,12 +137,3 @@ function createModule(raw, store){
         }
     };
 }
-
-
-
-/**
- * 定义loader
- */
-function defineLoader(raw){
-
-}
