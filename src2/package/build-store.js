@@ -38,18 +38,17 @@ function _fetch(xhr, queue, onNextTick, onClear){
  * 解析源码并构造模块对象
  */
 function compile(fulfill, queue, store){
-    let raw = fulfill.raw;
     // 搜集依赖，并生成加载任务
     if(!fulfill.is){
         // 普通模块
         // 构造模块
         const loader = store.loaders.get(getFileType(fulfill.url));
-        raw = loader && loader.make? loader.make(raw) : raw;
-        const mod = createModule(raw, store);
+        fulfill.raw = loader && loader.make? loader.make(fulfill.raw) : fulfill.raw;
+        const mod = createModule(fulfill.raw, store);
         store.set(fulfill.sign, mod);
 
         // 收集依赖
-        const deps = getDepends(fulfill.raw);
+        const deps = getDepends(fulfill.raw.toString());
         deps.forEach((sign) => {
             if(store.has(sign)) return;
             // 如果是loader依赖
@@ -63,8 +62,7 @@ function compile(fulfill, queue, store){
 
     }else if(fulfill.is == "loader"){
         // loader
-        // todo: 构造loader
-        const loaderMod = createModule(raw, store);
+        const loaderMod = createModule(fulfill.raw, store);
         const ins = loaderMod.instance();
         if(ins.type && ins.make){
             store.loaders.set(ins.type, ins);
@@ -121,7 +119,12 @@ function getFileType(url){
  * 构造模块
  */
 function createModule(raw, store){
-    const exec = new Function("require, exports", raw);
+    let exec;
+    if(typeof raw === "string"){
+        exec = new Function("require, exports", raw);
+    }else{
+        exec = raw;
+    }
     function getModule(sign){
         if(sign.startsWith("{loader}")) return;
         const mod = store.get(sign);
@@ -132,7 +135,11 @@ function createModule(raw, store){
     return {
         instance: function(){
             const exports = Object.create(null);
-            exec(getModule, exports);
+            if(typeof exec === "function"){
+                exec(getModule, exports);
+            }else{
+                return exec;
+            }
             return exports;
         }
     };
