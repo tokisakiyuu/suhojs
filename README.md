@@ -1,5 +1,7 @@
 # [suhojs](https://github.com/TokisakiYuu/suhojs)
 
+[![license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/yanhaijing/jslib-base/blob/master/LICENSE)
+
 一个简单的浏览器端模块加载器，仿nodejs require，可自定义loader。
 
 :star:特性
@@ -24,7 +26,7 @@ git clone https://github.com/TokisakiYuu/suhojs.git
 浏览器环境下
 
 ```html
-<script suho-main="path/to/main.js" src="dist/suho.js"></script>
+<script data-main="path/to/main.js" src="dist/suho.js"></script>
 ```
 
 在你自己定义的main.js文件中
