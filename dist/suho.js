@@ -62,6 +62,11 @@ function compile(fulfill, queue, store){
                 // 向队列头部推入一个loader加载任务
                 queue.unshift({sign: sign, url: compileUrl(sign), is: "loader"});
             }else{
+                // 如果模块已经存在或者已经加入了任务队列，就不再重复加入
+                if(store.has(sign)) return;
+                for(let q of queue){
+                    if(q.sign == sign) return;
+                }
                 queue.push({sign: sign, url: compileUrl(sign)});
             }
         });
@@ -155,7 +160,6 @@ buildStore(
     document.currentScript.getAttribute("data-main"), 
     (store) => {
         const main = store.get("main");
-        console.log(store)
         main && main.instance && main.instance();
     }
 );
