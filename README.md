@@ -34,6 +34,7 @@ git clone https://github.com/TokisakiYuu/suhojs.git
 ```js
 const modA = require("path/to/modA.js");
 const modB = require("https://cdn.yourstie.com/path/to/modB.js");
+const jsloader = require("{loader}path/to/jsloader.js");
 ```
 
 > 注：如果你引入的文件后缀是`.js`，那么可省略后缀名不写
