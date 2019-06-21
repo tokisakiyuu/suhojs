@@ -8,3 +8,4 @@ const c = require("mod/modC");
 console.log(modA.result);
 console.log(modA);
 console.log(frag.frag);
+console.log(new c())

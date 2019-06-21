@@ -132,7 +132,7 @@ function getFileType(url){
 function createModule(raw, store){
     let exec;
     if(typeof raw === "string"){
-        exec = new Function("require, exports", raw);
+        exec = new Function("require, exports, module", raw);
     }else{
         exec = raw;
     }
@@ -145,13 +145,28 @@ function createModule(raw, store){
     }
     return {
         instance: function(){
-            const exports = Object.create(null);
+            // module.exports接收的是构造函数
+            // exports接收的是实例
+            const module = {};
+            let exports = {};
+            Object.defineProperty(module, "exports", {
+                configurable: false, 
+                get: function(){
+                    return exports;
+                },
+                set: function(val){
+                    return typeof val !== "function" 
+                        ? console.error("[suho] Error: exports is not a constructor")
+                        : exports = val;
+                }
+            });
+
             if(typeof exec === "function"){
-                exec(getModule, exports);
+                exec(getModule, module.exports, module);
+                return module.exports;
             }else{
                 return exec;
             }
-            return exports;
         }
     };
 }
