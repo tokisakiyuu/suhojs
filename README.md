@@ -8,6 +8,9 @@
 
 ->  可以根据文件后缀名自定义loader，自定loader返回什么这个模块的导出就是什么
 
+
+
+
 :rocket:快速开始
 
 ---
@@ -20,6 +23,9 @@
 
 > index.js是入口
 
+
+
+
 模块的引用和导出
 
 ```js
@@ -31,6 +37,9 @@ const htmlLoader = require("{loader!html}path/to/html-loader.js");
 ```
 
 > 引用的相对路径的话是以当前html文件的url为根
+
+
+
 
 自定义loader
 
@@ -45,6 +54,9 @@ module.exports = function(source) {
   return source.blob();
 }
 ```
+
+
+
 
 :derelict_house:贡献者列表
 
