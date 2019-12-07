@@ -26,7 +26,8 @@
 const modA = require("path/to/modA.js");
 const modB = require("path/to/modB");
 const modC = require("https://www.otherstie.com/path/to/modC.js");
-const htmlLoader = require("{loader!html}path/to/jsloader.js");
+// 引入loader，以这个模块为起点的其它子模块凡事以 .html 结尾的都会被丢给 html-loader 来处理
+const htmlLoader = require("{loader!html}path/to/html-loader.js");
 ```
 
 > 引用的相对路径的话是以当前html文件的url为根
