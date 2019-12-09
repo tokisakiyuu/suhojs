@@ -6,7 +6,7 @@
 
 ->  模块的引用、导出同nodejs一致
 
-->  可以根据文件后缀名自定义loader，自定loader返回什么这个模块的导出就是什么
+->  可以根据文件后缀名自定义loader
 
 
 
@@ -54,7 +54,7 @@ module.exports = function(source) {
   return source.blob();
 }
 ```
-
+> 自定义loader如果返回字符串，suhojs将把字符串当作js代码来处理；如果返回对象，那么这个模块的导出就是这个对象。
 
 
 
