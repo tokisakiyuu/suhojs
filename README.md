@@ -36,7 +36,7 @@ const modC = require("https://www.otherstie.com/path/to/modC.js");
 const htmlLoader = require("{loader!html}path/to/html-loader.js");
 ```
 
-> 引用的相对路径的话是以当前html文件的url为根
+> 模块路径是相对路径的话是以当前html文件的url为根
 
 
 
