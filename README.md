@@ -32,7 +32,7 @@
 const modA = require("path/to/modA.js");
 const modB = require("path/to/modB");
 const modC = require("https://www.otherstie.com/path/to/modC.js");
-// 引入loader，以这个模块为起点的其它子模块凡事以 .html 结尾的都会被丢给 html-loader 来处理
+// 引入loader不是立即生效，而是要等到引用loader的模块和loader所依赖的模块全部加载完才会生效
 const htmlLoader = require("{loader!html}path/to/html-loader.js");
 ```
 
@@ -44,7 +44,7 @@ const htmlLoader = require("{loader!html}path/to/html-loader.js");
 自定义loader
 
 ```js
-// loader实际上也是一个模块，可以引用其它模块
+// loader实际上也是一个模块，可以引用其它模块，但依赖关系过多可能会导致loader还没加载完所有的依赖就开始被调用而报错
 let modA = require("path/to/modA")
 
 // 自定义loader必须用module.exports导出一个函数，并且至少有一个参数

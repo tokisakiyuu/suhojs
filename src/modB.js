@@ -1,3 +1,4 @@
+require("../dirA/dirB/modDeep")
 require("./modC")
 let C = require("./modC");
 
