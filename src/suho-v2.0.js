@@ -247,7 +247,7 @@
 
 
     console.log(
-        "%c SuhoJs %c v2.0.1 \n%s",
+        "%c SuhoJs %c v2.0.2 \n%s",
         "background-color: #03a9f4;color: white;",
         "background-color: #000;color: white;",
         "https://github.com/TokisakiYuu/suhojs"

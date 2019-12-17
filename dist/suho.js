@@ -37,6 +37,34 @@
     }
 
 
+    // 子模块放进待加载队列
+    function addChildModuleLoadTask(waitLoad, parentModulePath, children){
+        children.forEach(child => {
+            if(isLoader(child)) {
+                let loaderSignEndIndex = child.indexOf("}");
+                // let loaderSign = child.substring(0, loaderSignEndIndex + 1)
+                let childUrl = child.substring(loaderSignEndIndex + 1);
+                childUrl = addSuffix(childUrl);
+                return waitLoad.push({
+                    id: child,
+                    path: urlPathEval(parentModulePath, childUrl)
+                });
+            }
+            return waitLoad.push({
+                id: child,
+                path: urlPathEval(parentModulePath, addSuffix(child))
+            });
+        });
+    }
+
+
+    // url路径计算
+    function urlPathEval(fromUrl, toUrl){
+        let fullFromUrl = new URL(fromUrl, location.origin);
+        return new URL(toUrl, fullFromUrl).href;
+    }
+
+
     // 为url添加默认后缀
     function addSuffix(url){
         let filename = url.split("/").pop();
@@ -128,9 +156,9 @@
 
     // require
     function require(moduleid){
-        if(isLoader(moduleid)){
-            moduleid = getLoaderInfo(moduleid).path;
-        }
+        // if(isLoader(moduleid)){
+        //     moduleid = getLoaderInfo(moduleid).path;
+        // }
         let module = store[moduleid];
         if(!module) throw new Error("not found module '"+ moduleid +"'");
         if(module.loaded) return module.exports;
@@ -147,13 +175,10 @@
 
 
 
-    function getLoaderInfo(sign){
+    function getLoaderSupply(sign){
         // {loader!html}html-loader
         let ar = sign.split("}")
-        return {
-            path: ar[1],
-            supply: ar[0].split("!")[1]
-        }
+        return ar[0].split("!")[1]
     }
 
 
@@ -165,23 +190,23 @@
 
     // 
     let mainModId = document.currentScript.getAttribute("data-main") || "index.js";
-    waitLoad.push(mainModId);
+    waitLoad.push({
+        id: mainModId,
+        path: urlPathEval(location.href, addSuffix(mainModId))
+    });
 
     function start(){
-        let moduleid = waitLoad.shift();
-        if(!moduleid) return Promise.resolve(); // 没有任务了说明所有模块已经全部加载完毕了
-        let path, loaderInfo;
+        let task = waitLoad.shift();
+        if(!task) return Promise.resolve(); // 没有任务了说明所有模块已经全部加载完毕了
+        let moduleid = task.id;
+        let path = task.path;
+        let supplySuffix;
         if(isLoader(moduleid)) {
-            loaderInfo = getLoaderInfo(moduleid);
-            path = addSuffix(loaderInfo.path);
-            moduleid = loaderInfo.path;
-        }else{
-            path = addSuffix(moduleid);
+            supplySuffix = getLoaderSupply(moduleid);
         }
-
+        
         return fetchResponse(path)
             .then(response => {
-                path = response.url;
                 // 找到对应loader，并转换response为raw
                 let suffix = getSuffix(path);
                 let loaderid = loaders[suffix] || "js-loader";
@@ -193,11 +218,12 @@
                 if(typeof raw === "string"){
                     let children = getChildren(raw);
                     // 子模块放进待加载队列
-                    [].push.apply(waitLoad, children);
-                    if(loaderInfo) {
+                    addChildModuleLoadTask(waitLoad, path, children);
+                    // [].push.apply(waitLoad, children);                    
+                    if(supplySuffix) {
                         // 如果此模块是一个loader，就构建一个loader
                         buildModule(moduleid, path, "loader", raw, children);
-                        loaders["." + loaderInfo.supply] = moduleid;
+                        loaders["." + supplySuffix] = moduleid;
                     }else{
                         buildModule(moduleid, path, "module", raw, children);
                     }
@@ -221,7 +247,7 @@
 
 
     console.log(
-        "%c SuhoJs %c v2.0.1 \n%s",
+        "%c SuhoJs %c v2.0.2 \n%s",
         "background-color: #03a9f4;color: white;",
         "background-color: #000;color: white;",
         "https://github.com/TokisakiYuu/suhojs"
