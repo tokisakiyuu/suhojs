@@ -1,5 +1,5 @@
 require("../dirA/dirB/modDeep")
-require("./modC")
+require("modC")
 let C = require("./modC");
 
 let dom = require("./testhtml.html");
