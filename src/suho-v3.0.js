@@ -113,7 +113,7 @@ function buildModule(id, path, source){
     let isStringSource = typeof source === "string";
     return {
         id: id,
-        exports: !isStringSource ? source : null,
+        exports: !isStringSource ? source : {},
         parent: null,
         loaded: !isStringSource,
         path: path,
@@ -193,10 +193,11 @@ function handleSourceUseLoader(source, loaderList){
 // 消耗loadTask中的任务
 function todoLoadTask(){
     let tasks = [];
-    TAB.loadTasks.forEach(moduleid => {
+    TAB.loadTasks.forEach(task => {
+        let moduleid = task.moduleid;
         let moduleInfo = parseModuleId(moduleid);
         if(moduleInfo.type === "loacl") return;
-        let fullPath = urlPathEval(moduleInfo.path);
+        let fullPath = urlPathEval(task.ref, moduleInfo.path);
         // 如果发现 modulesPath中有对应路径的记录，说明是同一个模块，只是require时用了不同的id，那么只需要建立一个额外的引用即可，不要再建立新的模块
         if(TAB.modulesPath[fullPath]) return TAB.modules[moduleid] = TAB.modulesPath[fullPath];
         let suffix = getSuffix(fullPath);
@@ -237,6 +238,9 @@ function todoLoadTask(){
                 // 再创建一条请求路径的记录
                 TAB.modulesPath[rawInfo.path] = module;
                 // 创建子模块加载任务
+                module.children.forEach((child, index) => {
+                    module.children[index] = {ref: module.path, moduleid: child};
+                });
                 [].push.apply(TAB.loadTasks, module.children);
             })
         })
@@ -274,7 +278,7 @@ fetchResponse(suhoConfigModuleFullPath)
         // 读入入口文件路径
         let entry = config.entry || "./index.js";
         TAB.entry = entry;
-        TAB.loadTasks.push(entry);
+        TAB.loadTasks.push({ref: location.href, moduleid: entry});
         // 读入文件解析规则
         if(config.rules){
             config.rules.forEach(rule => {
@@ -314,7 +318,7 @@ fetchResponse(suhoConfigModuleFullPath)
         return todoLoadTask();
     })
     .then(() => {
-        // console.log(TAB.modules);
+        console.log(TAB.modules);
         // console.log(TAB.modulesPath)
         require(TAB.entry);
     })
