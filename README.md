@@ -18,10 +18,10 @@
 浏览器环境html
 
 ```html
-<script data-main="index.js" src="dist/suho.js"></script>
+<script data-config="suho.config.js" src="suho-v3.0.js"></script>
 ```
 
-> index.js是入口
+> suho.config.js是配置文件的位置
 
 
 
@@ -30,13 +30,16 @@
 
 ```js
 const modA = require("path/to/modA.js");
-const modB = require("path/to/modB");
-const modC = require("https://www.otherstie.com/path/to/modC.js");
-// 引入loader不是立即生效，而是要等到引用loader的模块和loader所依赖的模块全部加载完才会生效
-const htmlLoader = require("{loader!html}path/to/html-loader.js");
+const modB = require("./path/to/modB");
+const modC = require("../to/modC");
+const modD = require("https://www.otherstie.com/path/to/modD.js");
+const external = require("@external");
+
+module.exports = function foo(){};
+exports.va = "hello";
 ```
 
-> 模块路径是相对路径的话是以当前html文件的url为根
+> 支持以当前文件路径为根的相对路径引用，带@的是引用第三方模块，后面会说明
 
 
 
@@ -44,17 +47,53 @@ const htmlLoader = require("{loader!html}path/to/html-loader.js");
 自定义loader
 
 ```js
-// loader实际上也是一个模块，可以引用其它模块，但依赖关系过多可能会导致loader还没加载完所有的依赖就开始被调用而报错
-let modA = require("path/to/modA")
-
-// 自定义loader必须用module.exports导出一个函数，并且至少有一个参数
-// 这个函数只支持Promise异步返回
+// 自定义loader必须用module.exports导出一个函数，并且至少有一个参数，这个参数是文件的原始数据
+// 这个函数支持同步方式返回，也可以异步方式返回Promise
 module.exports = function(source) {
-  // source实际上是一个fetch("xxx.xx")返回的一个Response对象
-  return source.blob();
+  return "file content:\n" + source;
 }
 ```
 > 自定义loader如果返回字符串，suhojs将把字符串当作js代码来处理；如果返回对象，那么这个模块的导出就是这个对象。
+
+
+
+Config
+
+```js
+let suho = require("suho");
+
+module.exports = {
+    entry: "index.js",					// 入口文件
+    modules: "/node_modules",   // 第三方模块根目录，引用时的 @ 符号会被替换成这个
+    loaders: [
+        {
+            id: "raw-loader",
+            path: "@raw-loader"
+        },
+        {
+            id: "html-loader",
+            path: "@html-loader"
+        },
+        {
+            id: "your-loader",
+            path: "/src/myloader/your-loader.js"
+        }
+    ],
+    rules: [
+        {
+            suffix: [".html", ".htm", ".xhtml"],
+            rawType: suho.rawType.text,	    // 它决定这些类型的文件的原始数据的类型，实际上是responseType
+            useLoader: ["raw-loader", "html-loader"]    // 原始数据会按顺序传给这些loader处理
+        },
+        {
+            suffix: [".yuu"],
+            useLoader: ["raw-loader", "your-loader"]
+        }
+    ]
+}
+```
+
+> 配置文件也是一个模块，不过目前它只能引用内置模块
 
 
 
