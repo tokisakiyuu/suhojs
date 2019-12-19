@@ -23,6 +23,8 @@
 
 > suho.config.js是配置文件的位置
 
+---
+
 
 
 
@@ -41,6 +43,8 @@ exports.va = "hello";
 
 > 支持以当前文件路径为根的相对路径引用，带@的是引用第三方模块，后面会说明
 
+---
+
 
 
 
@@ -55,9 +59,11 @@ module.exports = function(source) {
 ```
 > 自定义loader如果返回字符串，suhojs将把字符串当作js代码来处理；如果返回对象，那么这个模块的导出就是这个对象。
 
+---
 
 
-Config
+
+Configura
 
 ```js
 let suho = require("suho");
