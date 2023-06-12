@@ -1,3 +1,5 @@
+> **初学阶段瞎写的小玩具，仅作留念**
+
 # [suhojs](https://github.com/TokisakiYuu/suhojs)
 
 [![license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/yanhaijing/jslib-base/blob/master/LICENSE)
